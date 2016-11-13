@@ -39,13 +39,15 @@ The test data (testingdata) has 20 observations with 160 features.
 In this step, we will clean the data and get rid of observations with missing values as well as some meaningless variables.
 ```{r, cache = T}
 sum(complete.cases(ruwedata))
+head(ruwedata)
 ```
+Looking through the data we see a lot of columns with NA values. We remove these to reduce the number of columns.
 First, we remove columns that contain NA missing values.
 ```{r, cache = T}
 ruwedata <- ruwedata[, colSums(is.na(ruwedata)) == 0] 
 testruw <- testruw[, colSums(is.na(testruw)) == 0] 
 ```  
-Looking through the data we see a lot of columns with NA values. We remove these to reduce the number of columns.
+
 
 ```{r, cache = T}
 classe <- ruwedata$classe
