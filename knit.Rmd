@@ -1,0 +1,114 @@
+---
+title: 'Assignment: Machine learning'
+author: "Jeroen van der A"
+date: "November 13th, 2016"
+output: html_document
+---
+
+## Executive summary
+Using devices such as Jawbone Up, Nike FuelBand, and Fitbit it is now possible to collect a large amount of data about personal activity relatively inexpensively. These type of devices are part of the quantified self movement.A group of enthusiasts who take measurements about themselves regularly to improve their health, to find patterns in their behavior, or because they are tech geeks. One thing that people regularly do is quantify how much of a particular activity they do, but they rarely quantify how well they do it. In this project, the goal is to use data from accelerometers on the belt, forearm, arm, and dumbell of 6 participants. They were asked to perform barbell lifts correctly and incorrectly in 5 different ways. More information is available from the website here: http://groupware.les.inf.puc-rio.br/har.
+
+Six young health participants were asked to perform one set of 10 repetitions of the Unilateral Dumbbell Biceps Curl in five different fashions: exactly according to the specification (Class A), throwing the elbows to the front (Class B), lifting the dumbbell only halfway (Class C), lowering the dumbbell only halfway (Class D) and throwing the hips to the front (Class E).
+
+Read more: http://groupware.les.inf.puc-rio.br/har#ixzz4PvAXy4zU
+
+In our analysis we want to use the data from the from the devices to accurately predict which repetitions were performed correctly and if not 
+What mistake was made.will use data from accelerometers on the belt, forearm, arm, and dumbell of 6 participants to predict the manner in which they did the exercise.  
+
+## Data Preprocessing  
+```{r, cache = T}
+library(caret)
+library(randomForest)
+
+```
+
+```  
+### Read the Data
+After downloading the data from the data source, we can read the two csv files into two data frames.  
+```{r, cache = T}
+ruwedata <- read.csv("http://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv", sep=",", na.strings=c("", "NA", "#DIV/0!","<NA>"))
+testruw <- read.csv("http://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv", sep=",", na.strings=c("", "NA", "#DIV/0!","<NA>"))
+dim(ruwedata)
+dim(testruw)
+```
+The training data(trainingdata) has 19622 observations with 160 features.
+The test data (testingdata) has 20 observations with 160 features.
+
+
+### Clean the data
+In this step, we will clean the data and get rid of observations with missing values as well as some meaningless variables.
+```{r, cache = T}
+sum(complete.cases(ruwedata))
+```
+First, we remove columns that contain NA missing values.
+```{r, cache = T}
+ruwedata <- ruwedata[, colSums(is.na(ruwedata)) == 0] 
+testruw <- testruw[, colSums(is.na(testruw)) == 0] 
+```  
+Looking through the data we see a lot of columns with NA values. We remove these to reduce the number of columns.
+
+```{r, cache = T}
+classe <- ruwedata$classe
+deletecolumns <- grepl("^X|timestamp|window", names(ruwedata))
+ruwedata <- ruwedata[, !deletecolumns]
+trainCleaned <- ruwedata[, sapply(ruwedata, is.numeric)]
+trainCleaned$classe <- classe
+testRemove <- grepl("^X|timestamp|window", names(testruw))
+testruw <- testruw[, !testRemove]
+testCleaned <- testruw[, sapply(testruw, is.numeric)]
+```
+Now, the cleaned training data set contains 19622 observations and 53 variables, while the testing data set contains 20 observations and 53 variables.
+
+### Slice the data
+Then, we can split the cleaned training set into a pure training data set (70%) and a validation data set (30%). We will use the validation data set to conduct cross validation in future steps.  
+```{r, cache = T}
+set.seed(22519) # For reproducibile purpose
+inTrain <- createDataPartition(trainCleaned$classe, p=0.70, list=F)
+trainData <- trainCleaned[inTrain, ]
+testData <- trainCleaned[-inTrain, ]
+```
+
+## Analysis
+
+```{r exploratory, cache=TRUE}
+  classes <- table(trainData$classe)
+  classes
+  
+  
+  
+```
+
+
+
+
+
+## Data Modeling
+WE use the random forest model. Tree models are good in picking the most important variables.
+```{r, cache = T}
+controlRf <- trainControl(method="cv", 5)
+modelRf <- train(classe ~ ., data=trainData, method="rf", trControl=controlRf, ntree=250)
+modelRf
+```
+
+
+The next step is to check the precisie of the model.
+```{r, cache = T}
+prediction <- predict(modelRf, testData)
+confusionMatrix(testData$classe, prediction)
+```
+```{r, cache = T}
+precisie <- postResample(prediction, testData$classe)
+precisie
+outofsample <- 1 - as.numeric(confusionMatrix(testData$classe, prediction)$overall[1])
+outofsample
+```
+Estimated precision of the model 99.21% 
+estimated out-of-sample error 0.78%.
+
+## Using the model to predict
+Now we apply the model to the test set  
+```{r, cache = T}
+result <- predict(modelRf, testCleaned[, -length(names(testCleaned))])
+result
+```  
+
