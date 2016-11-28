@@ -1,0 +1,56 @@
+---
+title: "my Leaflet example"
+author: "Jeroen van der A"
+date: "November 28, 2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## let me take you sightseeing!
+
+As I live in the Netherlands, let me show you some places here :-). Let's look at some other places than the usual suspects :-)
+
+```{r dataframe, echo=FALSE }
+library(leaflet)
+
+icon <- makeIcon(
+    iconUrl = 'http://www.holland.com/upload_mm/b/c/4/39895_fullimage_holland-rgb-logo_276x95.png',
+    iconWidth=31*460/230, iconHeight = 31,
+    iconAnchorX = 31*215/230/2, iconAnchorY = 16
+)
+  
+coordinates <- data.frame (
+    lat = c(52.271256,52.0521446,51.7,53.5347193,52.95836,52.6323813,52.0142878,51.6978162,50.8513682,53.4053662),
+    lng = c(4.546365,5.2356248,4.13333333333333,6.4749869,6.5224,4.7533754,6.1397816,5.3036748,5.6909725,6.2120483)
+)
+
+popups = c(  
+  paste(sep = "<br/>","<b><a href='http://www.keukenhof.nl'>Keukenhof</a></b>","<img src='http://laylawijsmuller.nl/wp-content/uploads/2015/02/IMG_9788-002.jpg' alt='Keukenhof 2015' height='126' width='126'>"),
+  paste(sep = "<br/>","<b><a href='http://www.bunnik.nl'>My Home town</a></b>","<img src='http://www.toeristeninformatie.nl/user/loc/066baa8674.jpg' alt='Odijk' height='126' width='126'>"),
+  paste(sep = "<br/>","<b><a href='http://www.neeltjejans.nl'>the Delta Works</a></b>","<img src='http://www.neeltjejans.nl/wp-content/uploads/2014/04/Stormvloedkering-2-900x600.jpg' alt='deltawerken' height='126' width='126'>"),
+  paste(sep = "<br/>","<b><a href='https://www.boswachtersblog.nl/rottum/'>Isle Rottumeroog Works</a></b>","<img src='https://www.boswachtersblog.nl/rottum/wp-content/uploads/sites/26/2016/08/sam_1648-b-2-640x350.jpg' alt='Rottum' height='126' width='126'>"),
+  paste(sep = "<br/>","<b><a href='http://www.ttcircuit.com/'>TT Assen</a></b>","<img src='http://images.motorcycle-usa.com/photogallerys/Marquez-Assen-Race-2014.jpg' alt='TT Assen' height='126' width='126'>"),
+  paste(sep = "<br/>","<b><a href='https://www.kaasmarkt.nl/bezoek-de-kaasmarkt/'>Alkmaar</a></b>","<img src='https://blog.expedia.nl/wp-content/uploads/2015/07/20150731101437__MG_0343-01.jpeg' alt='cheese market' height='126' width='126'>"),
+  paste(sep = "<br/>","<b><a href='http://www.achterhoek.nl/ontdekken/gemeenten/gemeente-doesburg/'>Doesburg</a></b>","<img src='http://www.achterhoek.nl/media/4057704/ontdekken_doesburg_Slide_vervolg_custom.jpg' alt='Doesburg' height='126' width='126'>"),
+  paste(sep = "<br/>","<b><a href='http://www.bezoekdenbosch.nl/en'>Den Bosch</a></b>","<img src='http://www.holland.com/upload_mm/8/a/3/780_fullimage_korte%20putstraat%20den%20bosch_316x198.jpg' alt='Den Bosch' height='126' width='126'>"),
+  paste(sep = "<br/>","<b><a href='http://www.vvvmaastricht.nl/'>Maastricht</a></b>","<img src='http://maastrichtconventionbureau.com/wp-content/uploads/2013/11/voorbeeld1.jpg' alt='Maastricht' height='126' width='126'>"),
+  paste(sep = "<br/>","<b><a href='http://www.promotielauwersoog.nl/'>Lauwersoog</a></b>","<img src='http://www.promotielauwersoog.nl/wp-content/uploads/2015/04/Waddenkwartier.jpg' alt='Lauwersoog' height='126' width='126'>")
+  
+  )
+
+
+```
+
+now the data is set up, lets render
+
+```{r leaflet}
+
+coordinates %>% 
+  leaflet(height = "800px", width = "100%") %>% 
+  addTiles() %>% 
+  addMarkers(popup=popups, icon=icon)
+
+```
