@@ -1,0 +1,68 @@
+---
+title: "My Plotly presentation"
+author: "Jeroen van der A"
+date: "December 2, 2016"
+output: ioslides_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(plotly)
+```
+
+## my Plotly presentation
+
+Hi, In my presentation I'm going to show three plotly plots
+
+- A Basic plotly plot
+- A little more advanced
+- A bit over the top extravagant chart
+
+
+## The basic example
+
+```{r slide1}
+plot(pressure)
+```
+
+
+
+## A colored boxplot
+
+```{r slide3}
+p <- plot_ly(midwest, x = ~percollege, color = ~state, type = "box")
+p
+```
+
+
+
+## the more extravagant graph
+
+This chart is a 3d rendering of a path. You could use this for visualize the path of an airplane. 
+For example airplanes use fixed paths to land at airfields. This visualization could show the standard path and a number of landing
+to show how much the acutal paths vary to the official path.
+
+
+```{r slide2}
+x <- c()
+y <- c()
+z <- c()
+c <- c()
+
+for (i in 1:62) {
+  r <- 20 * cos(i / 20)
+  x <- c(x, r * cos(i))
+  y <- c(y, r * sin(i))
+  z <- c(z, i)
+  c <- c(c, i)
+}  
+
+data <- data.frame(x, y, z, c)
+
+p <- plot_ly(data, x = ~x, y = ~y, z = ~z, type = 'scatter3d', mode = 'lines+markers',
+        line = list(width = 6, color = ~c, colorscale = 'Viridis'),
+        marker = list(size = 3.5, color = ~c, colorscale = 'Greens', cmin = -20, cmax = 50))
+
+p
+
+```
